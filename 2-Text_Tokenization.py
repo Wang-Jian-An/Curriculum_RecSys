@@ -19,12 +19,12 @@ if __name__ == "__main__":
     main_path = r"D:\OneDrive - tmu.edu.tw\AI_Competition\Learning Equality - Curriculum Recommendations"
         
     # 輸入資料
-    content_data = pd.read_csv(os.path.join(main_path, "raw_data", "content.csv")).head()
-    topics_data = pd.read_csv(os.path.join(main_path, "raw_data", "topics.csv")).head()
+    content_data = pd.read_csv(os.path.join(main_path, "raw_data", "content.csv"))
+    topics_data = pd.read_csv(os.path.join(main_path, "raw_data", "topics.csv"))
 
     # 把各國語言翻譯成英文
-    topics_data["en_title"] = topics_data.copy().apply(lambda x: translator.translate(x["title"], src = x["language"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1)    
-    content_data["en_title"] = content_data.copy().apply(lambda x: translator.translate(x["title"], src = x["language"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1)
+    topics_data["en_title"] = topics_data.copy().apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1)    
+    content_data["en_title"] = content_data.copy().apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1)
 
     # 將 Topics Data 中的 Title、Description 進行 Tokenize，取得 token_id, token_type_id 與 attention_mask
     title_token_result = {
