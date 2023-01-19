@@ -23,7 +23,10 @@ if __name__ == "__main__":
     topics_data = pd.read_csv(os.path.join(main_path, "raw_data", "topics.csv"))
 
     # 把各國語言翻譯成英文
+    translator = Translator()
     topics_data["en_title"] = topics_data.copy().apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1)    
+    
+    translator = Translator()
     content_data["en_title"] = content_data.copy().apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1)
 
     # 將 Topics Data 中的 Title、Description 進行 Tokenize，取得 token_id, token_type_id 與 attention_mask
