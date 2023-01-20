@@ -22,31 +22,30 @@ translator = Translator()
 if __name__ == "__main__":
         
     # 輸入資料
-    content_data = pd.read_csv(os.path.join(main_path, "raw_data", "content.csv"))
-    topics_data = pd.read_csv(os.path.join(main_path, "raw_data", "topics.csv"))
+    content_data = pd.read_csv(os.path.join(main_path, "raw_data", "content.csv")).head(10)
+    topics_data = pd.read_csv(os.path.join(main_path, "raw_data", "topics.csv")).head(10)
 
     # 將遺失值填補為 None
     content_data["title"] = content_data.copy()["title"].fillna("None")
     topics_data["title"] = topics_data.copy()["title"].fillna("None")
 
     # 把各國語言翻譯成英文
-    translator = Translator()
+    translator = Translator(user_agent = r"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Mobile Safari/537.36")
     topics_data["en_title"] = topics_data.copy().progress_apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1)    
     del translator
     gc.collect()
     time.sleep(10)
 
-    translator = Translator()
-    content_data_en_title_part_one = content_data.iloc[:75000, :].apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1).tolist()
+    translator = Translator(user_agent = r"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Mobile Safari/537.36")
+    content_data_en_title_part_one = content_data.iloc[:5, :].apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1).tolist()
     del translator
     gc.collect()
     time.sleep(10)
 
-    translator = Translator()
-    content_data_en_title_part_two = content_data.iloc[75000:, :].apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1).tolist()
+    translator = Translator(user_agent = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Mobile Safari/537.36")
+    content_data_en_title_part_two = content_data.iloc[5:, :].apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1).tolist()
     content_data = content_data.copy()
     content_data["en_title"] = content_data_en_title_part_one+content_data_en_title_part_two
-    # content_data["en_title"] = content_data.copy().progress_apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1)
 
     # 將 Topics Data 中的 Title、Description 進行 Tokenize，取得 token_id, token_type_id 與 attention_mask
     title_token_result = {
