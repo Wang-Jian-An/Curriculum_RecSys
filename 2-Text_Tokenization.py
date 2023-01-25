@@ -22,8 +22,8 @@ translator = Translator()
 if __name__ == "__main__":
         
     # 輸入資料
-    content_data = pd.read_csv(os.path.join(main_path, "raw_data", "content.csv")).head(10)
-    topics_data = pd.read_csv(os.path.join(main_path, "raw_data", "topics.csv")).head(10)
+    content_data = pd.read_csv(os.path.join(main_path, "raw_data", "content.csv"))
+    topics_data = pd.read_csv(os.path.join(main_path, "raw_data", "topics.csv"))
 
     # 將遺失值填補為 None
     content_data["title"] = content_data.copy()["title"].fillna("None")
@@ -37,13 +37,13 @@ if __name__ == "__main__":
     time.sleep(10)
 
     translator = Translator(user_agent = r"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Mobile Safari/537.36")
-    content_data_en_title_part_one = content_data.iloc[:5, :].apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1).tolist()
+    content_data_en_title_part_one = content_data.iloc[:75000, :].apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1).tolist()
     del translator
     gc.collect()
     time.sleep(10)
 
     translator = Translator(user_agent = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Mobile Safari/537.36")
-    content_data_en_title_part_two = content_data.iloc[5:, :].apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1).tolist()
+    content_data_en_title_part_two = content_data.iloc[75000:, :].apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1).tolist()
     content_data = content_data.copy()
     content_data["en_title"] = content_data_en_title_part_one+content_data_en_title_part_two
 
