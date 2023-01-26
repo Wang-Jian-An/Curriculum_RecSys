@@ -1,5 +1,4 @@
-import json
-import zipfile
+import compress_json
 import numpy as np
 import pandas as pd
 from Variable import *
@@ -24,14 +23,19 @@ if __name__ == "__main__":
 
     raw_correlation_data["content_ids"] = raw_correlation_data.copy()["content_ids"].apply(lambda x: x.split(" "))
     
+    # result = {
+    #     one_data["topic_id"]: tuple([1 if i in one_data["content_ids"] else 0 for i in unique_contents_id]) for _, one_data in list(raw_correlation_data.iterrows())[:1000]
+    # }
     result = {
-        one_data["topic_id"]: tuple([1 if i in one_data["content_ids"] else 0 for i in unique_contents_id]) for _, one_data in raw_correlation_data.iterrows()
+        one_data["topic_id"]: {
+            i: 1 if i in one_data["content_ids"] else 0 for i in unique_contents_id
+        } for _, one_data in list(raw_correlation_data.iterrows())[:100]
     }
 
     # 儲存關係結果為 JSON 檔案
-    with open("Correlations_with_oneHotEncoding.json", "w") as f:
-        json.dump(dict(result), f)
-
-    with zipfile.ZipFile(os.path.join(main_path, "raw_data", "Correlations_with_oneHotEncoding.zip"), "w") as f:
-        f.write("Correlations_with_oneHotEncoding.json")
-        os.remove("Correlations_with_oneHotEncoding.json")
+    # with open(os.path.join(main_path, "raw_data", "Correlations_with_oneHotEncoding_and_SinglePairs_for_development.json.gz"), "w") as f:
+    #     compress_json.dump(result, f)
+    compress_json.dump(result, f"{main_path}/raw_data/Correlations_with_oneHotEncoding_and_SinglePairs_for_development.json.gz")
+    # with zipfile.ZipFile(os.path.join(main_path, "raw_data", "Correlations_with_oneHotEncoding_and_SinglePairs_for_development.zip"), "w") as f:
+    #     f.write("Correlations_with_oneHotEncoding.json")
+    #     os.remove("Correlations_with_oneHotEncoding.json")
