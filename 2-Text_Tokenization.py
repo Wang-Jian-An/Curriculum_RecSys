@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import tqdm
 tqdm.tqdm.pandas()
+import compress_json
 from transformers import AutoTokenizer
 from googletrans import Translator
 from Variable import *
@@ -36,6 +37,12 @@ if __name__ == "__main__":
     gc.collect()
     time.sleep(10)
 
+    topics_data = pd.concat([
+        topics_data["id"],
+        pd.DataFrame(tokenizer(topics_data["en_title"].tolist(), padding = True))
+    ], axis = 1)
+    topics_data.to_excel(os.path.join(main_path, "raw_data", "tokenizered_topics.xlsx"), index = None)
+
     translator = Translator(user_agent = r"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Mobile Safari/537.36")
     content_data_en_title_part_one = content_data.iloc[:75000, :].apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1).tolist()
     del translator
@@ -48,16 +55,10 @@ if __name__ == "__main__":
     content_data["en_title"] = content_data_en_title_part_one+content_data_en_title_part_two
 
     # 將 Topics Data 中的 Title、Description 進行 Tokenize，取得 token_id, token_type_id 與 attention_mask
-    title_token_result = {
-        data_name : tokenizer(data["en_title"].tolist(), padding = True) for data_name, data in zip(["content_title", "topic_title"], [content_data, topics_data])
-    }
+    content_data = pd.concat([
+        content_data["id"],
+        pd.DataFrame(tokenizer(content_data["en_title"].tolist(), padding = True))
+    ], axis = 1)
     
-    # 儲存文字切割結果為 JSON 檔案
-    for one_file_name, one_data in title_token_result.items():
-        with open(f"{one_file_name}.json", "w") as f:
-            json.dump(dict(one_data), f)
-
-    with zipfile.ZipFile(os.path.join(main_path, "raw_data", "token_data.zip"), "w") as f:
-        for one_file_name in title_token_result.keys():
-            f.write(f"{one_file_name}.json")
-            os.remove(f"{one_file_name}.json")
+    # 儲存文字切割結果為 EXCEL 檔案
+    content_data.to_excel(os.path.join(main_path, "raw_data", "tokenizered_content.xlsx"), index = None)
