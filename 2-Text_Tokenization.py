@@ -37,27 +37,33 @@ if __name__ == "__main__":
     gc.collect()
     time.sleep(10)
 
+    topicsToken = {
+        oneKey: [tuple(i) for i in oneValue] for oneKey, oneValue in tokenizer(topics_data["en_title"].tolist(), padding = True).items()
+    } 
     topics_data = pd.concat([
         topics_data["id"],
-        pd.DataFrame(tokenizer(topics_data["en_title"].tolist(), padding = True))
+        pd.DataFrame(topicsToken)
     ], axis = 1)
     topics_data.to_excel(os.path.join(main_path, "raw_data", "tokenizered_topics.xlsx"), index = None)
 
     translator = Translator(user_agent = r"Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Mobile Safari/537.36")
-    content_data_en_title_part_one = content_data.iloc[:75000, :].apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1).tolist()
+    content_data_en_title_part_one = content_data.iloc[:(content_data.shape[0]//2), :].apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1).tolist()
     del translator
     gc.collect()
     time.sleep(10)
 
     translator = Translator(user_agent = "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Mobile Safari/537.36")
-    content_data_en_title_part_two = content_data.iloc[75000:, :].apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1).tolist()
+    content_data_en_title_part_two = content_data.iloc[(content_data.shape[0]//2):, :].apply(lambda x: translator.translate(x["title"], dest = "en").text if x["language"] != "en" else x["title"], axis = 1).tolist()
     content_data = content_data.copy()
     content_data["en_title"] = content_data_en_title_part_one+content_data_en_title_part_two
 
-    # 將 Topics Data 中的 Title、Description 進行 Tokenize，取得 token_id, token_type_id 與 attention_mask
+    # 將 Topics Data 中的 Title、Description 進行 Tokenize，取得 token_id, token_type_id 與 attention_mask 
+    contentToken = {
+        oneKey: [tuple(i) for i in oneValue] for oneKey, oneValue in tokenizer(content_data["en_title"].tolist(), padding = True).items()
+    } 
     content_data = pd.concat([
         content_data["id"],
-        pd.DataFrame(tokenizer(content_data["en_title"].tolist(), padding = True))
+        pd.DataFrame(contentToken)
     ], axis = 1)
     
     # 儲存文字切割結果為 EXCEL 檔案
