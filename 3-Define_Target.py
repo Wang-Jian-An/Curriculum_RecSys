@@ -33,9 +33,4 @@ if __name__ == "__main__":
     }
 
     # 儲存關係結果為 JSON 檔案
-    # with open(os.path.join(main_path, "raw_data", "Correlations_with_oneHotEncoding_and_SinglePairs_for_development.json.gz"), "w") as f:
-    #     compress_json.dump(result, f)
     compress_json.dump(result, f"{main_path}/raw_data/Correlations_with_oneHotEncoding_and_SinglePairs_for_development.json.gz")
-    # with zipfile.ZipFile(os.path.join(main_path, "raw_data", "Correlations_with_oneHotEncoding_and_SinglePairs_for_development.zip"), "w") as f:
-    #     f.write("Correlations_with_oneHotEncoding.json")
-    #     os.remove("Correlations_with_oneHotEncoding.json")
